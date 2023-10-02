@@ -16,6 +16,9 @@
 
 
     <properties>
+        <workflow-common.version>1.0.0</workflow-common.version>
+
+
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,7 +26,7 @@
         <lombok.version>1.18.28</lombok.version>
         <httpclient.version>4.5.14</httpclient.version>
         <spring.version>5.2.15.RELEASE</spring.version>
-
+        <mybatis-plus.version>3.2.0</mybatis-plus.version>
         <spring.boot.version>2.5.4</spring.boot.version>
     </properties>
 
@@ -33,11 +36,24 @@
     <!--    依赖版本集中管理-->
     <dependencyManagement>
         <dependencies>
+            <!--workflow-common -->
+            <dependency>
+                <groupId>top.swzhao.project</groupId>
+                <artifactId>workflow-common</artifactId>
+                <version>${workflow-common.version}</version>
+            </dependency>
+
 <!--            lombook-->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+            </dependency>
+<!--            mybatis-->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
             </dependency>
 <!--            httpclient-->
             <dependency>
