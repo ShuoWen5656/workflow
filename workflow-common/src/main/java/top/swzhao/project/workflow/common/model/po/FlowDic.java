@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.ToString;
 
+import java.sql.Date;
+
 /**
  * @author swzhao
  * @data 2023/10/2 23:14
@@ -52,12 +54,12 @@ public class FlowDic {
      * 创建时间
      */
     @TableField("create_time")
-    private String createTime;
+    private Date createTime;
 
     /**
      * 修改时间
      */
     @TableField("update_time")
-    private String updateTime;
+    private Date updateTime;
 
 }

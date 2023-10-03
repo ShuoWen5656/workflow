@@ -23,6 +23,9 @@
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+
+        <commons-lang3.version>3.13.0</commons-lang3.version>
+        <fastjson.version>2.0.40</fastjson.version>
         <lombok.version>1.18.28</lombok.version>
         <httpclient.version>4.5.14</httpclient.version>
         <spring.version>5.2.15.RELEASE</spring.version>
@@ -41,6 +44,19 @@
                 <groupId>top.swzhao.project</groupId>
                 <artifactId>workflow-common</artifactId>
                 <version>${workflow-common.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+<!--            json-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
             </dependency>
 
 <!--            lombook-->
