@@ -17,6 +17,7 @@
 
     <properties>
         <workflow-common.version>1.0.0</workflow-common.version>
+        <workflow-core.version>1.0.0</workflow-core.version>
 
 
         <maven.compiler.source>8</maven.compiler.source>
