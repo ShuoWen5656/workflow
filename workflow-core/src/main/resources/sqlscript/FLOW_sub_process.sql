@@ -12,4 +12,4 @@ CREATE TABLE `FLOW_sub_process` (
   `create_time` varchar(64) NOT NULL DEFAULT current_timestamp(),
   `update_time` varchar(64) NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='工作流_子流程'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='工作流_子流程';
