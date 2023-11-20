@@ -139,15 +139,15 @@ public class FlowKvConstants {
     /**
      * 字符串 - value类型 - 久层配:sqlSessionFactoryFlow
      */
-    public static final String STR_KEY_SESSIONFACTORY_FLOW = "sqlSessionFactoryFlow";
+    public static final String STR_KEY_SESSION_FACTORY_FLOW = "sqlSessionFactoryFlow";
     /**
      * 字符串 - value类型 - 久层配: datasource配前缀
      */
-    public static final String STR_KEY_DATASOURCE_PREFIX = "spring.datasource,flow";
+    public static final String STR_KEY_DATASOURCE_PREFIX = "spring.datasource.flow";
     /**
      * 字符串 - value类型 - 久层配:xm文件位
      */
-    public static final String STR_KEY_MAPPER_XML_LOCATION = "classpath*:flowmapper/*,xml";
+    public static final String STR_KEY_MAPPER_XML_LOCATION = "classpath*:flowmapper/*.xml";
     /**
      * 字符串 - value类型 - 久层配: transactionflow
      */
