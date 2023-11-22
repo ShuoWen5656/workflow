@@ -28,10 +28,14 @@ public class EngineException  extends RuntimeException{
         this.errorCode = errorCode;
     }
 
-    public EngineException(Integer errorCode, FlowProcess flowProcess, List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
-        super(ErrorCodes.convert2Msg(errorCode));
+    public EngineException(Integer errorCode, String msg, FlowProcess flowProcess, List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
+        super(ErrorCodes.convert2Msg(errorCode).concat(msg));
         this.errorCode = errorCode;
         this.flowProcess = flowProcess;
         this.flowSubProcessSortDtos = flowSubProcessSortDtos;
     }
+
+
+
+
 }

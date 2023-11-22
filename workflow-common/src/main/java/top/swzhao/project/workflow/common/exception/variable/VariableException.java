@@ -21,6 +21,6 @@ public class VariableException extends EngineException {
     }
 
     public VariableException(Integer errorCode, FlowProcess flowProcess, List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
-        super(errorCode, flowProcess, flowSubProcessSortDtos);
+        super(errorCode, "", flowProcess, flowSubProcessSortDtos);
     }
 }

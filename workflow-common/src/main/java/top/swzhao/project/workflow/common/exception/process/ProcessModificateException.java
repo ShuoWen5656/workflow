@@ -20,7 +20,8 @@ public class ProcessModificateException extends EngineException {
         super(errorCode, message);
     }
 
-    public ProcessModificateException(Integer errorCode, FlowProcess flowProcess, List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
-        super(errorCode, flowProcess, flowSubProcessSortDtos);
+
+    public ProcessModificateException(Integer errorCode, String msg, FlowProcess flowProcess, List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
+        super(errorCode, msg, flowProcess, flowSubProcessSortDtos);
     }
 }

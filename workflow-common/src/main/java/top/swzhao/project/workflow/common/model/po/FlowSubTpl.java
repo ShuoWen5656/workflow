@@ -32,7 +32,7 @@ public class FlowSubTpl {
      * 子任务模板类型
      */
     @TableField("type")
-    private String type;
+    private Integer type;
 
 
     /**

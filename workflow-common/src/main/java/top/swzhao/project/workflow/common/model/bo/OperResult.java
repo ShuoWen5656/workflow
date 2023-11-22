@@ -26,6 +26,11 @@ public class OperResult<T> {
      */
     private String msg;
 
+
+    public boolean success() {
+        return OperResult.OPT_SUCCESS.equals(code);
+    }
+
     public OperResult(T data, Integer code, String msg) {
         this.data = data;
         this.code = code;
