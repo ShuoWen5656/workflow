@@ -109,16 +109,7 @@ public class FlowHandlerImpl implements FlowHandler {
         return new OperResult(OperResult.OPT_SUCCESS, "处理成功");
     }
 
-    public static void main(String[] args) {
-        System.out.println("   ____  __  __ _____        ______ _      ______          __\n" +
-                "  / __ \\|  \\/  |  __ \\      |  ____| |    / __ \\ \\        / /\n" +
-                " | |  | | \\  / | |__) |     |  |__ | |   | |  | \\ \\  /\\  / / \n" +
-                " | |  | | |\\/| |  ___/      |  __| | |   | |  | |\\ \\/  \\/ /  \n" +
-                " | |__| | |  | | |   ______ | |    | |___| |__| | \\  /\\  /   \n" +
-                "  \\____/|_|  |_|_|  |______||_|    |______\\____/   \\/  \\/    \n" +
-                "                                                       \n" +
-                "                                                       ");
-    }
+
 
 
 

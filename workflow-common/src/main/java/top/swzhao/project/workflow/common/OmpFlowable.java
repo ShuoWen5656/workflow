@@ -9,7 +9,7 @@ import top.swzhao.project.workflow.common.model.bo.TempFlowParam;
  * @Discreption <> 工作流模板类
  * 注意：凡是继承了该接口的类都会被引擎启动时记录在数据库的FLOW_sub_tpl 表中
  */
-public interface OmpFlowAble {
+public interface OmpFlowable {
 
 
     /**

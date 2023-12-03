@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import top.swzhao.project.workflow.common.OmpFlowAble;
+import top.swzhao.project.workflow.common.OmpFlowable;
 import top.swzhao.project.workflow.common.annotation.FlowDescription;
 import top.swzhao.project.workflow.common.contants.EngineConstants;
 import top.swzhao.project.workflow.common.contants.FlowKvConstants;
@@ -74,14 +74,14 @@ public class InitEngine implements CommandLineRunner {
               dealThreadPool();
               log.info("初始化OMP_FLOW线程池成功!");
               // 打印logo
-              System.out.println("   ____  __  __ _____        ______ _      ______          __\n" +
-                      "  / __ \\|  \\/  |  __ \\      |  ____| |    / __ \\ \\        / /\n" +
-                      " | |  | | \\  / | |__) |     |  |__ | |   | |  | \\ \\  /\\  / / \n" +
-                      " | |  | | |\\/| |  ___/      |  __| | |   | |  | |\\ \\/  \\/ /  \n" +
-                      " | |__| | |  | | |   ______ | |    | |___| |__| | \\  /\\  /   \n" +
-                      "  \\____/|_|  |_|_|  |______||_|    |______\\____/   \\/  \\/    \n" +
-                      "                                                       \n" +
-                      "                                                       ");
+              System.out.println("   _______          _________    _          ____             ______ _      ______          __\n" +
+                      "  / ____\\ \\        / /___  / |  | |   /\\   / __ \\           |  ____| |    / __ \\ \\        / /\n" +
+                      " | (___  \\ \\  /\\  / /   / /| |__| |  /  \\ | |  | |          | |__  | |   | |  | \\ \\  /\\  / / \n" +
+                      "  \\___ \\  \\ \\/  \\/ /   / / |  __  | / /\\ \\| |  | |          |  __| | |   | |  | |\\ \\/  \\/ /  \n" +
+                      "  ____) |  \\  /\\  /   / /__| |  | |/ ____ \\ |__| |  ______  | |    | |___| |__| | \\  /\\  /   \n" +
+                      " |_____/    \\/  \\/   /_____|_|  |_/_/    \\_\\____/  |______| |_|    |______\\____/   \\/  \\/    \n" +
+                      "                                                                                           \n" +
+                      "                                                                                           ");
           }catch (EngineException e) {
               log.error("InitEngine 引擎初始化异常：{}", e.getMessage(), e);
           }catch (Exception e) {
@@ -130,10 +130,10 @@ public class InitEngine implements CommandLineRunner {
      * sub_tpl表中一条记录对应一个子任务的class
      */
     private void dealSubTpl() {
-        Map<String, OmpFlowAble> flowBeanMap = springUtils.getBeansFromClazz(OmpFlowAble.class);
+        Map<String, OmpFlowable> flowBeanMap = springUtils.getBeansFromClazz(OmpFlowable.class);
         ArrayList<FlowSubTpl> flowSubTplList = new ArrayList<>();
         for (String beanName : flowBeanMap.keySet()) {
-            OmpFlowAble ompFlowAble = flowBeanMap.get(beanName);
+            OmpFlowable ompFlowAble = flowBeanMap.get(beanName);
             FlowSubTpl flowSubTpl = new FlowSubTpl();
             // 变量准备
             String className = ompFlowAble.getClass().getName();
@@ -196,6 +196,17 @@ public class InitEngine implements CommandLineRunner {
         }
     }
 
+
+    public static void main(String[] args) {
+        System.out.println("   _______          _________    _          ____             ______ _      ______          __\n" +
+                "  / ____\\ \\        / /___  / |  | |   /\\   / __ \\           |  ____| |    / __ \\ \\        / /\n" +
+                " | (___  \\ \\  /\\  / /   / /| |__| |  /  \\ | |  | |          | |__  | |   | |  | \\ \\  /\\  / / \n" +
+                "  \\___ \\  \\ \\/  \\/ /   / / |  __  | / /\\ \\| |  | |          |  __| | |   | |  | |\\ \\/  \\/ /  \n" +
+                "  ____) |  \\  /\\  /   / /__| |  | |/ ____ \\ |__| |  ______  | |    | |___| |__| | \\  /\\  /   \n" +
+                " |_____/    \\/  \\/   /_____|_|  |_/_/    \\_\\____/  |______| |_|    |______\\____/   \\/  \\/    \n" +
+                "                                                                                           \n" +
+                "                                                                                           ");
+    }
 
 
 

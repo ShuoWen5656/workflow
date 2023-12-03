@@ -31,7 +31,7 @@ public class OperResult<T> {
         return OperResult.OPT_SUCCESS.equals(code);
     }
 
-    public OperResult(T data, Integer code, String msg) {
+    public OperResult(Integer code, String msg, T data) {
         this.data = data;
         this.code = code;
         this.msg = msg;
