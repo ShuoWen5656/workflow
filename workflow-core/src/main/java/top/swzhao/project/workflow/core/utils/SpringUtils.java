@@ -3,6 +3,7 @@ package top.swzhao.project.workflow.core.utils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
@@ -11,9 +12,10 @@ import java.util.Map;
  * @date 2023/11/6 10:19 下午
  * @Discreption <>
  */
+@Component
 public class SpringUtils implements ApplicationContextAware {
 
-    private ApplicationContext applicationContext;
+    private static ApplicationContext applicationContext;
 
 
     @Override
@@ -21,12 +23,12 @@ public class SpringUtils implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    public <T> Map<String, T> getBeansFromClazz(Class<T> clazz) {
+    public static  <T> Map<String, T> getBeansFromClazz(Class<T> clazz) {
         return applicationContext.getBeansOfType(clazz);
     }
 
 
-    public ApplicationContext getApplicationContext() {
+    public static ApplicationContext getApplicationContext() {
         return applicationContext;
     }
 }

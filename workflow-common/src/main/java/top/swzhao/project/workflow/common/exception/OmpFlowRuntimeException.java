@@ -1,10 +1,13 @@
 package top.swzhao.project.workflow.common.exception;
 
+import lombok.Data;
+
 /**
  * @author swzhao
  * @date 2023/10/19 10:24 下午
  * @Discreption <>
  */
+@Data
 public class OmpFlowRuntimeException extends RuntimeException {
 
     private Integer errorCode;
