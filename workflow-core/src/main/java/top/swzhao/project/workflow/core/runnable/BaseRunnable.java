@@ -12,16 +12,20 @@ import top.swzhao.project.workflow.common.exception.BeanNotFoundException;
 import top.swzhao.project.workflow.common.exception.EngineException;
 import top.swzhao.project.workflow.common.exception.ErrorCodes;
 import top.swzhao.project.workflow.common.exception.OmpFlowRuntimeException;
+import top.swzhao.project.workflow.common.exception.variable.VariableCreateException;
 import top.swzhao.project.workflow.common.model.bo.FlowParam;
 import top.swzhao.project.workflow.common.model.bo.GlobalFlowParam;
+import top.swzhao.project.workflow.common.model.bo.OperResult;
 import top.swzhao.project.workflow.common.model.bo.TempFlowParam;
 import top.swzhao.project.workflow.common.model.dto.FlowProcessSubProcessDto;
 import top.swzhao.project.workflow.common.model.dto.FlowSubProcessSortDto;
 import top.swzhao.project.workflow.common.model.dto.FlowSubTplDto;
+import top.swzhao.project.workflow.common.model.dto.Variable;
 import top.swzhao.project.workflow.common.model.po.FlowProcess;
 import top.swzhao.project.workflow.common.model.po.FlowSubTpl;
 import top.swzhao.project.workflow.common.model.po.FlowTpl;
 import top.swzhao.project.workflow.common.model.po.FlowVariable;
+import top.swzhao.project.workflow.common.service.FlowVariableService;
 import top.swzhao.project.workflow.common.utils.CommonUtils;
 import top.swzhao.project.workflow.core.engineimpl.OmpFlowEngineImpl;
 import top.swzhao.project.workflow.core.utils.SpringUtils;
@@ -217,10 +221,48 @@ public class BaseRunnable implements Runnable{
         // 入库变量
         List<FlowVariable> flowVariablesForDB = new ArrayList<>();
         if (EngineConstants.listEngineStartAction().contains(this.action)) {
-//            convertFlowVariablesForDB()
+            convertFlowVariablesForDB(gFlowParam, flowVariablesForDB, flowSubProcessSortDtos, EngineConstants.STR_VALUE_VARIABLE_TYPE_GLOBAL);
+            convertFlowVariablesForDB(tflowParam, flowVariablesForDB, flowSubProcessSortDtos, EngineConstants.STR_VALUE_VARIABLE_TYPE_TEMP);
         }else if (EngineConstants.listEngineRollBackAction().contains(this.action)) {
+            convertFlowVariablesForDB(gFlowParam, flowVariablesForDB, flowSubProcessSortDtos, EngineConstants.STR_VALUE_VARIABLE_TYPE_GLOBAL_ROLLBACK);
+            convertFlowVariablesForDB(tflowParam, flowVariablesForDB, flowSubProcessSortDtos, EngineConstants.STR_VALUE_VARIABLE_TYPE_TEMP_ROLLBACK);
+        }
+        OperResult operResult = ompFlowEngine.getFlowVariableService().batchCreate(flowVariablesForDB);
+        if (!operResult.success()) {
+            log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 失败，入参tableName:{}， 入参：{}， 返回值：{}"), flowVariablesForDB, operResult);
+            throw new VariableCreateException(ErrorCodes.VARIABLE_ERROR, "变量入库失败", flowProcess, flowSubProcessSortDtos);
         }
     }
+
+    /**
+     * 将flowParam中的变量转为入库的变量列表并放入flowVariableForDB
+     * @param flowParam
+     * @param flowVariablesForDB
+     * @param flowSubProcessSortDtos
+     * @param variableType
+     */
+    private void convertFlowVariablesForDB(FlowParam flowParam, List<FlowVariable> flowVariablesForDB, List<FlowSubProcessSortDto> flowSubProcessSortDtos, Integer variableType) {
+        List<FlowVariable> flowVariables = new ArrayList<>();
+        Map<String, Variable> input = flowParam.getInput();
+        for (String key : input.keySet()) {
+            Variable variable = input.get(key);
+            FlowVariable flowVariable = new FlowVariable();
+            flowVariable.setName(variable.getName());
+            flowVariable.setClassType(variable.getClassName());
+            flowVariable.setVariableContent(variable.getJsonString());
+            flowVariables.add(flowVariable);
+        }
+        // 给每一个变量分配一个流程，并标识全局变量还是局部变量
+        for (FlowSubProcessSortDto flowSubProcessSortDto : flowSubProcessSortDtos) {
+            flowVariables.forEach(u -> {
+                u.setType(variableType);
+                u.setProcessId(flowSubProcessSortDto.getId());
+            });
+            flowVariablesForDB.addAll(CommonUtils.deepCopyForJson(flowVariables, new TypeReference<List<FlowVariable>>(){}));
+        }
+    }
+
+
 
 
 

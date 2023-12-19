@@ -11,7 +11,7 @@ import java.util.List;
  * @Discreption <>
  */
 public class VariableCreateException extends VariableException  {
-    public VariableCreateException(Integer errorCode) {
+    public VariableCreateException(Integer errorCode, String 变量入库失败, FlowProcess flowProcess, List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
         super(errorCode);
     }
 
