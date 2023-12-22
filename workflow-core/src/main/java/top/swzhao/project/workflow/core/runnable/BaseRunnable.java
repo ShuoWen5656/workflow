@@ -2,6 +2,7 @@ package top.swzhao.project.workflow.core.runnable;
 
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import top.swzhao.project.workflow.common.OmpFlowable;
 import top.swzhao.project.workflow.common.contants.EngineConstants;
@@ -33,6 +34,7 @@ import top.swzhao.project.workflow.core.utils.SpringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -261,6 +263,139 @@ public class BaseRunnable implements Runnable{
             flowVariablesForDB.addAll(CommonUtils.deepCopyForJson(flowVariables, new TypeReference<List<FlowVariable>>(){}));
         }
     }
+
+
+    /**
+     * 1、更改当前sort的所有子任务状态为执行中并入库
+     * 2、更改当前process状态为执行中，当前执行子任务id写入并入库
+     * 3、将当前全局变量和局部变量入库一份给没有一个子任务
+     * @param flowSubProcessSortDtos
+     */
+    protected void beforeExecuteForStart(List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
+        // 获取流程信息
+        FlowProcess flowProcess = flowProcessSubProcessDto.getFlowProcess();
+        // 处理三个步骤
+        // 1 、处理process
+        flowProcess.setState(ProcessStateEnum.PROCESS_STATE_START.getCode().toString());
+        List<String> subProcessIds = flowSubProcessSortDtos.stream().map(FlowSubProcessSortDto::getId).collect(Collectors.toList());
+        flowProcess.setCurSubId(StringUtils.join(subProcessIds, FlowKvConstants.STR_VALUE_COMMA));
+        ompFlowEngine.getFlowHandler().dealSubProcess(flowSubProcessSortDtos, flowProcess);
+        // 2、处理subprocess
+        for (FlowSubProcessSortDto flowSubProcessSortDto : flowSubProcessSortDtos) {
+            flowSubProcessSortDto.setState(ProcessStateEnum.PROCESS_STATE_START.getCode().toString());
+            flowSubProcessSortDto.setMethodName(FlowKvConstants.STR_VALUE_START);
+        }
+        ompFlowEngine.getFlowHandler().dealSubProcess(flowSubProcessSortDtos, flowProcess);
+        // 3、变量入库
+        variablesIntoDB(flowSubProcessSortDtos, flowProcess);
+    }
+
+    /**
+     * 执行后收尾
+     * 1、检查当前子任务是否全部成功，并将全部的子任务状态和错误（若有）入库
+     * 2、如果存在子任务是失败的状态，则将process更改为失败状态并结束线程
+     * 3、如果子任务全部成功，则全局变量不变，局部变量input和output调换位置，继续下一顺序执行
+     * @param flowSubProcessSortDtos
+     * @return
+     */
+    protected boolean afterExecuteForStart(List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
+        FlowProcess flowProcess = flowProcessSubProcessDto.getFlowProcess();
+        boolean success = true;
+        for (FlowSubProcessSortDto flowSubProcessSortDto : flowSubProcessSortDtos) {
+            if (ProcessStateEnum.PROCESS_STATE_FAIL.getCode().equals(flowSubProcessSortDto.getState())) {
+                success = false;
+            }
+        }
+        if (success) {
+            // 全部成功
+            // 交换输入输出
+            tempFlowParam.getFlowParam().switchInputOutput();;
+        }else {
+            // process处理为不成功
+            flowProcess.setState(ProcessStateEnum.PROCESS_STATE_FAIL.getCode().toString());
+            ompFlowEngine.getFlowHandler().dealProcess(flowSubProcessSortDtos, flowProcess);
+        }
+        // 处理子process，当前子任务该完成的都已经完成，失败的都已经失败
+        ompFlowEngine.getFlowHandler().dealSubProcess(flowSubProcessSortDtos, flowProcess);
+        return success;
+    }
+
+
+    /**
+     * 执行前准备(回滚)
+     * @param flowSubProcessSortDtos
+     */
+    protected void beforeExecuteForRollback(List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
+        // 获取流程管理信息
+        FlowProcess flowProcess = flowProcessSubProcessDto.getFlowProcess();
+        // 处理三步骤
+        // 1、处理process
+        List<String> subprocessIds = flowSubProcessSortDtos.stream().map(FlowSubProcessSortDto::getId).collect(Collectors.toList());
+        flowProcess.setCurSubId(StringUtils.join(subprocessIds, FlowKvConstants.STR_VALUE_COMMA));
+        ompFlowEngine.getFlowHandler().dealProcess(flowSubProcessSortDtos, flowProcess);
+        // 2、处理subprocess
+        for (FlowSubProcessSortDto flowSubProcessSortDto : flowSubProcessSortDtos) {
+            flowSubProcessSortDto.setMethodName(FlowKvConstants.STR_VALUE_ROLLBACK);
+        }
+        ompFlowEngine.getFlowHandler().dealSubProcess(flowSubProcessSortDtos, flowProcess);
+        // 3、变量入库
+        variablesIntoDB(flowSubProcessSortDtos, flowProcess);
+    }
+
+
+    /**
+     * 执行后收尾（回滚）
+     * @param flowSubProcessSortDtos
+     * @return
+     */
+    protected boolean afterExecuteForRollback(List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
+        FlowProcess flowProcess = flowProcessSubProcessDto.getFlowProcess();
+        boolean success = true;
+        for (FlowSubProcessSortDto flowSubProcessSortDto : flowSubProcessSortDtos) {
+            if (ProcessStateEnum.PROCESS_STATE_ROLLBACK_FAIL.getCode().equals(flowSubProcessSortDto.getState())) {
+                success = false;
+            }
+        }
+        if (success) {
+            // 全部成功
+            // 交换输入输出
+            tempFlowParam.getFlowParam().switchInputOutput();;
+        }else {
+            // process处理为不成功
+            flowProcess.setState(ProcessStateEnum.PROCESS_STATE_ROLLBACK_FAIL.getCode().toString());
+            ompFlowEngine.getFlowHandler().dealProcess(flowSubProcessSortDtos, flowProcess);
+        }
+        // 处理子process，当前子任务该完成的都已经完成，失败的都已经失败
+        ompFlowEngine.getFlowHandler().dealSubProcess(flowSubProcessSortDtos, flowProcess);
+        return success;
+    }
+
+
+    protected void execute(List<FlowSubProcessSortDto> flowSubProcessSortDtos) throws InterruptedException {
+        if (flowSubProcessSortDtos.size() == FlowKvConstants.NUM_VALUE_I) {
+            FlowSubProcessSortDto flowSubProcessSortDto = flowSubProcessSortDtos.get(FlowKvConstants.NUM_VALUE_O);
+            // 如果只有一个任务的时候，使用当前主线程执行即可
+            executeSubProcess(flowSubProcessSortDto);
+        }else {
+            // 多任务状况，同步原子值
+            CountDownLatch countDownLatch = new CountDownLatch(flowSubProcessSortDtos.size());
+            for (FlowSubProcessSortDto flowSubProcessSortDto : flowSubProcessSortDtos) {
+                this.threadPoolExecutor.submit(() -> {
+                   try {
+
+                   }catch (Exception e) {
+                       // 异步任务的异常打印
+                       log.error("异步任务执行异常:", e);
+                   }finally {
+                       countDownLatch.countDown();
+                   }
+                });
+            }
+            // 等待所有线程结束
+            countDownLatch.await();
+        }
+    }
+
 
 
 
