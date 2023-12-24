@@ -1,6 +1,7 @@
 package top.swzhao.project.workflow.core.engineimpl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,10 +40,12 @@ import top.swzhao.project.workflow.core.utils.ExecutorPoolUtils;
 import top.swzhao.project.workflow.core.utils.SpringUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -435,7 +438,7 @@ public class OmpFlowEngineImpl implements OmpFlowEngine {
      * @param processId
      * @return
      */
-    private Map<String, Object> getProcessTplsByProcessId(String processId) throws ProcessException {
+    private Map<String, Object> getProcessTplsByProcessId(String processId) throws ProcessException, TemplateNotFoundException {
         Map<String, Object> map = new HashMap<>(16);
         // 获取流程
         OperResult<FlowProcess> processOperResult = flowProcessService.getById(processId);
@@ -468,37 +471,106 @@ public class OmpFlowEngineImpl implements OmpFlowEngine {
      * @param action
      */
     private void initProcessAndSubProcess(FlowProcess flowProcess, List<FlowSubProcessSortDto> flowSubProcessSortDtos, String action) {
-//        switch (action) {
-//            case EngineConstants.STR_VALUE_ENGINE_ROLLBACK:
-//                break;
-//
-//            case EngineConstants.STR_VALUE_ENGINE_ROLLBACK:
-//                break;
-//
-//            case EngineConstants.STR_VALUE_ENGINE_ROLLBACK:
-//                break;
-//
-//            case EngineConstants.STR_VALUE_ENGINE_ROLLBACK:
-//                break;
-//
-//            case EngineConstants.STR_VALUE_ENGINE_ROLLBACK:
-//            default:
-//                break;
-//        }
-//
-
+        switch (action) {
+            case EngineConstants.STR_VALUE_ENGINE_ROLLBACK:
+            case EngineConstants.STR_VALUE_ENGINE_ROLLBACK_SUB_PROCESS:
+                flowProcess.setState(ProcessStateEnum.PROCESS_STATE_ROLLBACK.getCode().toString());
+                flowProcess.setCurSubId(FlowKvConstants.STR_VALUE_EMP);
+                flowSubProcessSortDtos.forEach(u -> {
+                    u.setState(ProcessStateEnum.PROCESS_STATE_ROLLBACK.getCode().toString());
+                    u.setErrorType(FlowKvConstants.NUM_VALUE_NEGATIVE_1);
+                    u.setErrorStack(FlowKvConstants.STR_VALUE_EMP);
+                    u.setErrorCode(FlowKvConstants.NUM_VALUE_O);
+                });
+                break;
+            case EngineConstants.STR_VALUE_ENGINE_RE_START:
+            case EngineConstants.STR_VALUE_ENGINE_RE_RUN:
+            case EngineConstants.STR_VALUE_ENGINE_SKIP:
+                flowProcess.setState(ProcessStateEnum.PROCESS_STATE_UNSTART.getCode().toString());
+                flowProcess.setCurSubId(FlowKvConstants.STR_VALUE_EMP);
+                flowSubProcessSortDtos.forEach(u -> {
+                    u.setState(ProcessStateEnum.PROCESS_STATE_UNSTART.getCode().toString());
+                    if (!EngineConstants.STR_VALUE_ENGINE_SKIP.equals(action)) {
+                        u.setErrorType(FlowKvConstants.NUM_VALUE_NEGATIVE_1);
+                        u.setErrorStack(FlowKvConstants.STR_VALUE_EMP);
+                        u.setErrorCode(FlowKvConstants.NUM_VALUE_O);
+                    }
+                });
+                break;
+            default:
+                break;
+        }
+        flowHandler.dealProcess(flowSubProcessSortDtos, flowProcess);
+        flowHandler.dealSubProcess(flowSubProcessSortDtos, flowProcess);
     }
 
 
 
 
-    private List<FlowSubTplDto> checkSubTpl(FlowTpl flowTpl) {
-        return null;
+
+    private List<FlowSubTplDto> checkSubTpl(FlowTpl flowTpl) throws TemplateNotFoundException {
+        OperResult<List<FlowSubTplDto>> listOperResult = flowTplSubClassNameService.listFlowSubTplByTplId(flowTpl.getId());
+        if (!listOperResult.success() || CollectionUtils.isEmpty(listOperResult.getData())) {
+            log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 获取子模板失败，入参flowTpl:{}， 结果：{}"), flowTpl, listOperResult);
+            throw new TemplateNotFoundException(ErrorCodes.TEMPLATE_ERROR, "获取子模板失败");
+        }
+        List<FlowSubTplDto> flowSubTplDtos = listOperResult.getData();
+        // 检查排序是否正确，如果存在1111，5的情况，则1111四个任务会并行，第五个任务顺序应该为5
+        for (FlowSubTplDto flowSubTplDto : flowSubTplDtos) {
+            if (flowSubTplDto.getSort() <= FlowKvConstants.NUM_VALUE_O || flowSubTplDto.getSort() > flowSubTplDtos.size()) {
+                log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 存在子模板配置顺序在（0， {}）]之外"), flowSubTplDtos.size());
+                throw new TemplateNotFoundException(ErrorCodes.TEMPLATE_ERROR, "子模板顺序有误");
+            }
+        }
+        // 按照sort排序，从小到大，o1是后面的元素，o2为前一个元素
+        flowSubTplDtos.sort(new Comparator<FlowSubTplDto>() {
+            @Override
+            public int compare(FlowSubTplDto o1, FlowSubTplDto o2) {
+                if (o1.getSort() < o2.getSort()) {
+                    return FlowKvConstants.NUM_VALUE_NEGATIVE_1;
+                }else if (o1.getSort() > o2.getSort()) {
+                    return FlowKvConstants.NUM_VALUE_I;
+                }else {
+                    return FlowKvConstants.NUM_VALUE_O;
+                }
+            }
+        });
+        return flowSubTplDtos;
     }
 
 
-    private void dealProcessAndSubProcess(FlowTpl flowTpl, List<FlowSubTplDto> flowSubTplDtoList, FlowProcessSubProcessDto flowProcessSubProcessDto) {
-
+    /**
+     * 创建process示例和subprocess子示例到库中
+     * @param flowTpl
+     * @param flowSubTplDtoList
+     * @param flowProcessSubProcessDto
+     */
+    private void dealProcessAndSubProcess(FlowTpl flowTpl, List<FlowSubTplDto> flowSubTplDtoList, FlowProcessSubProcessDto flowProcessSubProcessDto) throws ProcessCreateException {
+        String processUUID = UUID.randomUUID().toString();
+        // 实例化流程
+        FlowProcess flowProcess = new FlowProcess(processUUID, String.format(FlowKvConstants.STR_CONTAIN_PROCESS_NAME, flowTpl.getName(), processUUID), flowTpl.getId(), String.valueOf(FlowKvConstants.NUM_VALUE_O));
+        flowProcessSubProcessDto.setFlowProcess(flowProcess);
+        OperResult processCreateResult = flowProcessService.createProcess(flowProcess);
+        if (!processCreateResult.success()) {
+            log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 创建流程失败，入参:{}, 结果：{}"), flowProcess, processCreateResult);
+            throw new ProcessCreateException(ErrorCodes.PROCESS_ERROR, "创建流程失败", processUUID);
+        }
+        // 示例化子流程
+        List<FlowSubProcessSortDto> flowSubProcessSortDtos = new ArrayList<>();
+        // 封装子流程列表
+        for (FlowSubTplDto flowSubTplDto : flowSubTplDtoList) {
+            String subProcessUUID = UUID.randomUUID().toString();
+            FlowSubProcessSortDto flowSubProcessSortDto = new FlowSubProcessSortDto(subProcessUUID, String.format(FlowKvConstants.STR_CONTAIN_PROCESS_NAME, flowSubTplDto.getName(), subProcessUUID),
+                    flowSubTplDto.getId(), String.valueOf(FlowKvConstants.NUM_VALUE_O), processUUID, String.valueOf(flowSubTplDto.getSort()), flowSubTplDto.getName(), flowSubTplDto.getClassName());
+            flowSubProcessSortDtos.add(flowSubProcessSortDto);
+        }
+        // 批量创建子流程
+        OperResult operResult = flowSubProcessService.batchCreate(flowSubProcessSortDtos);
+        flowProcessSubProcessDto.setFlowSubProcessSortDtoList(flowSubProcessSortDtos);
+        if (!operResult.success()) {
+            log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 创建子流程失败，入参 flowSubProcessSortDtos :{}, 结果 operResult：{}"), flowSubProcessSortDtos, operResult);
+            throw new ProcessCreateException(ErrorCodes.PROCESS_ERROR, "子流程实例化失败", processUUID);
+        }
     }
 
     private void rollbackProcessAndSubProcess(String processId) {
@@ -511,6 +583,24 @@ public class OmpFlowEngineImpl implements OmpFlowEngine {
         if (!operResult.success()) {
             log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 回滚流程和子流程失败：删除流程失败，入参processId:{}， 结果：{}"), processId, operResult);
         }
+    }
+
+
+    /**
+     * 初始化过程和子过程
+     * @param flowProcess
+     * @param flowSubProcessSortDtos
+     */
+    private void initProcessAndSubProcessForSkip(FlowProcess flowProcess, List<FlowSubProcessSortDto> flowSubProcessSortDtos) {
+        // process修改为未开始
+        flowProcess.setState(ProcessStateEnum.PROCESS_STATE_UNSTART.getCode().toString());
+        flowProcess.setCurSubId(FlowKvConstants.STR_VALUE_EMP);
+        flowHandler.dealProcess(flowSubProcessSortDtos, flowProcess);
+        // subprocess修该为未开始单不清楚错误信息
+        flowSubProcessSortDtos.forEach(u -> {
+            u.setState(ProcessStateEnum.PROCESS_STATE_UNSTART.getCode().toString());
+        });
+        flowHandler.dealSubProcess(flowSubProcessSortDtos, flowProcess);
     }
 
 
