@@ -37,8 +37,7 @@ public @interface DistributeLock {
     boolean loopWithLockFail() default false;
 
     /**
-     * 自旋尝试次数，默认一百次
-     * 一次等待100ms
+     * 自旋时间（s）
      * @return
      */
     int tryTime() default 100;
