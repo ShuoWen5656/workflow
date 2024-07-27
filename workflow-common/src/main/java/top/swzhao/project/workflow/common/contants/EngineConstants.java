@@ -18,9 +18,9 @@ public class EngineConstants {
     /**
      * 字符串 - jdbc配置的三种表达方式
      */
-    public static final String STR_JDBC_URL1 = "spring.datasource,flow.jdbc-url";
-    public static final String STR_JDBC_URL2 = "spring.datasource,flow.jdbc_url";
-    public static final String STR_JDBC_URL3 = "spring.datasource,flow.jdbcUrl";
+    public static final String STR_JDBC_URL1 = "spring.datasource.flow.jdbc-url";
+    public static final String STR_JDBC_URL2 = "spring.datasource.flow.jdbc_url";
+    public static final String STR_JDBC_URL3 = "spring.datasource.flow.jdbcUrl";
 
 
     /**

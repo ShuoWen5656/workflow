@@ -131,7 +131,7 @@ public class FlowKvConstants {
     /**
      * 字符串 - value类型 - 持久层配: mapper包坐标
      */
-    public static final String STR_KEY_BASE_PACKAGE = "com.h3c.security.cloud.workflow.common.mapper";
+    public static final String STR_KEY_BASE_PACKAGE = "top.swzhao.project.workflow.common.mapper";
     /**
      * 字符串 - value类型 - 久层配:dataSourceFlow
      */
