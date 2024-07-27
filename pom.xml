@@ -10,6 +10,7 @@
     <modules>
         <module>workflow-common</module>
         <module>workflow-core</module>
+        <module>workflow-test</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -18,7 +19,7 @@
     <properties>
         <workflow-common.version>1.0.0</workflow-common.version>
         <workflow-core.version>1.0.0</workflow-core.version>
-
+        <workflow-test.version>1.0.0</workflow-test.version>
 
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
