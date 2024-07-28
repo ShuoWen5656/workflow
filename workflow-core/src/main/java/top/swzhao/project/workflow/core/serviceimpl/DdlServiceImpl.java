@@ -43,7 +43,7 @@ public class DdlServiceImpl implements DdlService{
             int tableExist = ddlMapper.isTableExist(tableName, databaseName);
             return new OperResult(OperResult.OPT_SUCCESS, "获取成功", tableExist > FlowKvConstants.NUM_VALUE_O);
         }catch (Exception e) {
-            log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 失败，入参tableName:{}, databaseName:{}, 返回值：{}"), tableName, databaseName);
+            log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 失败，入参tableName:{}, databaseName:{}, 返回值：{}"), tableName, databaseName, e);
             return new OperResult<>(OperResult.OPT_FAIL, "获取异常", false);
         }
     }

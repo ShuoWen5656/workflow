@@ -1,5 +1,6 @@
 package top.swzhao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -9,10 +10,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Discreption <>
  */
 @SpringBootApplication
+@Slf4j
 public class WorkFlowApplicatin {
 
     public static void main(String[] args) {
-        SpringApplication.run(WorkFlowApplicatin.class, args);
+        try {
+            SpringApplication.run(WorkFlowApplicatin.class, args);
+        }catch (Exception e) {
+            log.error("", e);
+        }
     }
 
 

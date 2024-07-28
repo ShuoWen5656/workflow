@@ -32,6 +32,7 @@
         <httpclient.version>4.5.14</httpclient.version>
         <spring.version>5.2.15.RELEASE</spring.version>
         <mybatis-plus.version>3.2.0</mybatis-plus.version>
+        <mysql.connector.version>8.0.33</mysql.connector.version>
         <spring.boot.version>2.5.4</spring.boot.version>
         <redisson.version>3.15.5</redisson.version>
         <junit.version>4.13.2</junit.version>
@@ -80,11 +81,16 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
-<!--            mybatis-->
+<!--            mybatis和持久化层相关-->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.connector.version}</version>
             </dependency>
 <!--            httpclient-->
             <dependency>

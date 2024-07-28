@@ -19,8 +19,8 @@ public interface FlowSubTplMapper extends BaseMapper<FlowSubTpl> {
     @Insert("<script>" +
             "INSERT INTO FLOW_sub_tpl(id, name, type, class_name, description) \n" +
             "VALUES " +
-            "<foreach collection='flowSubTpls' item='flowSubTpl' index='index' separator=','" +
-            "(UUID(), #{flowSubTpl.name}, #{flowSubTpl.type}, #{flowSubTpl.className}, ${flowSubTpl.description})" +
+            "<foreach collection='flowSubTpls' item='flowSubTpl' index='index' separator=','>" +
+            "(UUID(), #{flowSubTpl.name}, #{flowSubTpl.type}, #{flowSubTpl.className}, '${flowSubTpl.description}')" +
             "</foreach>" +
             "ON DUPLICATE KEY UPDATE \n" +
             "name = values(name), type = values(type), description = values(description), update_time = values(update_time) \n" +

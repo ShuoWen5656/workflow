@@ -23,11 +23,11 @@ public interface DdlMapper {
      * @return
      */
     @Select("<script>" +
-            "select count(1) from information_schema.TABLES" +
-            "where" +
+            "select count(1) from information_schema.TABLES " +
+            "where " +
             "1 = 1" +
-            "<if test='tableSchema != null and tableSchema != \"\"'" +
-            "and TABLE_SCHEMA = '${tableSchema}" +
+            "<if test='tableSchema != null and tableSchema != \"\"'>" +
+            "and TABLE_SCHEMA = '${tableSchema}'" +
             "</if>" +
             "and TABLE_NAME = '${tableName}'" +
             "</script>")

@@ -167,7 +167,7 @@ public class FlowKvConstants {
     /**
      * 字符串 - format类型 - sql脚本路
      */
-    public static final String STR_CONTAIN_CONSTANT = "sglscript/%s.sql";
+    public static final String STR_CONTAIN_CONSTANT = "sqlscript/%s.sql";
     /**
      * 字串 - format类型 - 杠器
      */

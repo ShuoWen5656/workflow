@@ -29,7 +29,7 @@ public class RedisToolAspect {
 
 
 
-    @AfterReturning("@annotation(RedisToolAnnotation)")
+    @AfterReturning("@annotation(top.swzhao.project.workflow.common.annotation.RedisToolAnnotation)")
     public void doAfter(JoinPoint joinpoint) {
         try {
             MethodSignature signature = (MethodSignature) joinpoint.getSignature();

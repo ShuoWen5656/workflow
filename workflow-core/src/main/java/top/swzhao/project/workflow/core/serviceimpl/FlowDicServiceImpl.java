@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.swzhao.project.workflow.common.mapper.FlowDicMapper;
 import top.swzhao.project.workflow.common.model.bo.OperResult;
@@ -22,6 +23,7 @@ import java.util.List;
 @Slf4j
 public class FlowDicServiceImpl implements FlowDicService {
 
+    @Autowired
     FlowDicMapper flowDicMapper;
 
 

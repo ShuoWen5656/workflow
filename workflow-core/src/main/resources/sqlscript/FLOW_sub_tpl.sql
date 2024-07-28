@@ -6,5 +6,6 @@ CREATE TABLE `FLOW_sub_tpl` (
   `description` text DEFAULT '',
   `create_time` varchar(64) NOT NULL DEFAULT current_timestamp(),
   `update_time` varchar(64) NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci COMMENT='工作流_子任务模板';
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `FLOW_sub_tpl_pk_class_name` (`class_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci COMMENT='工作流_子任务模板';

@@ -47,7 +47,7 @@ public class DataSource2Config {
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setMetaObjectHandler(autoFillMetaObjectHandler);
         mybatisSqlSessionFactoryBean.setGlobalConfig(globalConfig);
-        mybatisSqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResource(FlowKvConstants.STR_KEY_MAPPER_XML_LOCATION));
+//        mybatisSqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResource(FlowKvConstants.STR_KEY_MAPPER_XML_LOCATION));
         return mybatisSqlSessionFactoryBean.getObject();
     }
 

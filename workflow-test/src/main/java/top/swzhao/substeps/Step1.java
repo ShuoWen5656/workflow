@@ -1,6 +1,7 @@
 package top.swzhao.substeps;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import top.swzhao.project.workflow.common.OmpFlowable;
 import top.swzhao.project.workflow.common.annotation.FlowDescription;
 import top.swzhao.project.workflow.common.model.bo.GlobalFlowParam;
@@ -13,6 +14,7 @@ import top.swzhao.project.workflow.common.model.bo.TempFlowParam;
  */
 @FlowDescription(description = "测试步骤1")
 @Slf4j
+@Service
 public class Step1 implements OmpFlowable {
 
 
