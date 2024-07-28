@@ -36,7 +36,7 @@
         <spring.boot.version>2.5.4</spring.boot.version>
         <redisson.version>3.15.5</redisson.version>
         <junit.version>4.13.2</junit.version>
-        <spring.test.version>5.3.29</spring.test.version>
+        <spring.test.version>5.2.15.RELEASE</spring.test.version>
     </properties>
 
 

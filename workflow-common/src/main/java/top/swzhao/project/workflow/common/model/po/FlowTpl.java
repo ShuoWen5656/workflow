@@ -24,7 +24,7 @@ public class FlowTpl {
     /**
      * 模板唯一名称（需要有意义）
      */
-    @TableField("tbl_name")
+    @TableField("tpl_name")
     private String tplName;
 
     /**

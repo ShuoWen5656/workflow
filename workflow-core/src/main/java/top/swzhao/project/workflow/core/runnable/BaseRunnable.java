@@ -134,7 +134,7 @@ public class BaseRunnable implements Runnable{
                     flowSubProcessSortDto.setState(String.valueOf(ProcessStateEnum.PROCESS_STATE_FINISH.getCode()));
                 case EngineConstants.STR_VALUE_ENGINE_ROLLBACK:
                     curSubProcess.rollback(this.tempFlowParam, this.globalFlowParam);
-                    flowSubProcessSortDto.setState(String.valueOf(ProcessStateEnum.PROCESS_STATE_ROLLBACK_FINISH));
+                    flowSubProcessSortDto.setState(String.valueOf(ProcessStateEnum.PROCESS_STATE_ROLLBACK_FINISH.getCode()));
                 default:
                     break;
             }

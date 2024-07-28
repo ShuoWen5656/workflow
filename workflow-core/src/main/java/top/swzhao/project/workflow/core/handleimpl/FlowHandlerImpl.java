@@ -20,6 +20,7 @@ import top.swzhao.project.workflow.common.service.FlowProcessService;
 import top.swzhao.project.workflow.common.service.FlowSubProcessService;
 import top.swzhao.project.workflow.common.service.FlowVariableService;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ public class FlowHandlerImpl implements FlowHandler {
     @Override
     public OperResult dealProcess(List<FlowSubProcessSortDto> flowSubProcessSortDtos, FlowProcess flowProcess) throws ProcessModificateException {
         FlowProcess processTemp = new FlowProcess(flowProcess.getId(), flowProcess.getState(), flowProcess.getCurSubId());
+        processTemp.setUpdateTime(new Date(System.currentTimeMillis()));
         OperResult updateProcessResult = flowProcessService.update(processTemp);
         if (!updateProcessResult.success()) {
             log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 失败，入参{}, 返回值：{}"), processTemp, updateProcessResult);
@@ -65,6 +67,7 @@ public class FlowHandlerImpl implements FlowHandler {
             container.setErrorType(flowSubProcessSortDto.getErrorType());
             container.setErrorCode(flowSubProcessSortDto.getErrorCode());
             container.setErrorStack(flowSubProcessSortDto.getErrorStack());
+            container.setUpdateTime(new Date(System.currentTimeMillis()));
             flowSubProcesses.add(container);
         }
         OperResult operResult = flowSubProcessService.batchUpdate(flowSubProcesses);
@@ -103,8 +106,10 @@ public class FlowHandlerImpl implements FlowHandler {
             flowParam.setInputKV(flowVariables);
         }
         // 这种方式其实会循环两次，不推荐,推荐使用Entry
-        for (String key : variables.keySet()) {
-            flowParam.setInputKV(key, variables.get(key));
+        if (!CollectionUtils.isEmpty(variables)) {
+            for (String key : variables.keySet()) {
+                flowParam.setInputKV(key, variables.get(key));
+            }
         }
         return new OperResult(OperResult.OPT_SUCCESS, "处理成功");
     }

@@ -78,7 +78,7 @@ public class FlowProcessServiceImpl implements FlowProcessService {
                 return new OperResult(OperResult.OPT_FAIL, "更新失败，id为空");
             }
             int num = flowProcessMapper.updateById(flowProcess);
-            log.info("更新失败, 条数：{}", num);
+            log.info("更新成功, 条数：{}", num);
             return new OperResult(OperResult.OPT_SUCCESS, "更新成功");
         }catch (Exception e) {
             log.error(getClass().getSimpleName().concat(".").concat(Thread.currentThread().getStackTrace()[0].getClassName()).concat(" 异常，入参flowProcess:{}， 原因：{}"), flowProcess, e.getMessage(), e);
